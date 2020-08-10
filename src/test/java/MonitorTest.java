@@ -19,22 +19,20 @@ public class MonitorTest {
 
         List<Double> testList = new ArrayList<>();
 
-        Double measurement1 = 50.0, measurement2 = 40.0, measurement3 = 60.1;
+        Double measurement1 = 50.0, measurement2 = 90.1;
 
         store.measurementListener(measurement1, "One");
         store.measurementListener(measurement2, "Two");
-        store.measurementListener(measurement3, "Three");
 
         List<Double> measurementList = store.getMeasurements();
 
         testList.add(measurement1);
         testList.add(measurement2);
-        testList.add(measurement3);
 
         monitorThread.start();
 
         try {
-            Thread.sleep(100000);
+            Thread.sleep(70000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

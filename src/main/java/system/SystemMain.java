@@ -37,7 +37,7 @@ public class SystemMain {
             System.out.println("1 - Run BaseCase (4 sensors with random measurements)");
             System.out.println("2 - Stop Sensors (The monitor won't stop)");
             System.out.println("3 - Configure Monitor DifMaxMin Const Value (If max-min is bigger than this Const " +
-                    "the system throws a console error) | Default 50.0");
+                    "the system throws a console error) | Default 40.0");
             System.out.println("4 - Configure Monitor avg Const Value (If average is bigger than this Const " +
                     "the system throws a console error) | Default: 70.0");
             System.out.println("5 - Stop System / Quit");
