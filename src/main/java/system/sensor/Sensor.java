@@ -1,7 +1,7 @@
 package system.sensor;
 import system.store.MeasurementStore;
 
-public class Sensor implements Runnable{
+public class Sensor implements Runnable {
 
     private String name;
     private MeasurementStore store;
@@ -13,7 +13,7 @@ public class Sensor implements Runnable{
 
     public void run() {
 
-        while(store.getKey()) {
+        while(store.getSensorKey()) {
             try {
                 Thread.sleep(500);
                 sendMeasurement();
@@ -26,7 +26,6 @@ public class Sensor implements Runnable{
     private void sendMeasurement() {
 
             store.measurementListener(getMeasurement(), getName());
-
     }
 
     private Double getMeasurement(){

@@ -21,7 +21,7 @@ public class SensorTest {
             e.printStackTrace();
         }
 
-        store.turnOffSystem(); //turning off the sensor
+        store.turnOffSensors(); //turning off the sensor
 
         try {
             Thread.sleep(1000);
@@ -29,7 +29,7 @@ public class SensorTest {
             e.printStackTrace();
         }
 
-        store.turnOnSystem(); //Even i'm turning on, all threads have ended
+        store.turnOnSensors(); //Even i'm turning on, all threads have ended
 
         List<Double> measurementList = store.getMeasurements();
 

@@ -4,32 +4,24 @@ import org.apache.log4j.Logger;
 import system.exceptions.EmptyMeasurementException;
 import system.store.MeasurementStore;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.OptionalDouble;
 
 public class Monitor implements Runnable {
 
-    //private static final Logger LOGGER = Logger.getLogger(Monitor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Monitor.class.getName());
 
     private MeasurementStore store;
-    private Double avgConst;
-    private Double difMaxMinConst;
 
-    private List<Double> measurementsProcessed = new ArrayList<>();
-
-    public Monitor(MeasurementStore store, Double averageConst, Double difMaxMinConst) {
+    public Monitor(MeasurementStore store) {
         this.store = store;
-        this.avgConst = averageConst;
-        this.difMaxMinConst = difMaxMinConst;
     }
 
     public void run() {
 
-        while(store.getKey()) {
-            try {
+        while(true) {
 
+            try {
                 Thread.sleep(30000);
                 Double measurement = takeMeasurement();
                 processMeasurement(measurement);
@@ -37,54 +29,52 @@ public class Monitor implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (EmptyMeasurementException e) {
-                //LOGGER.info(e.getMessage());
-                System.out.println(e.getMessage());
+                LOGGER.info(e.getMessage());
             }
         }
     }
 
     private void processMeasurement(Double measurement) {
 
-        measurementsProcessed.add(measurement);
+        store.newMeasurementsProcessed(measurement);
 
-        avgProcess(measurement);
-        difMaxMinProcess(measurement);
+        avgProcess();
+        difMaxMinProcess();
 
-        //LOGGER.info(String.format("Measurement with value: %f, has been processed", measurement));
-        System.out.println(String.format("Measurement with value: %f, has been processed", measurement));
+        LOGGER.info(String.format("Measurement with value: %f, has been processed", measurement));
     }
 
-    private void avgProcess(Double measurement) {
+    private void avgProcess() {
 
-        OptionalDouble optionalAvg = measurementsProcessed.stream().mapToDouble(a -> a).average();
+        OptionalDouble optionalAvg = store.getMeasurementsProcessed().stream().mapToDouble(a -> a).average();
         Double avg = optionalAvg.isPresent() ? optionalAvg.getAsDouble() : 0.0;
 
-        if(avg > avgConst) {
+        if(avg > store.getAvgConst()) {
 
             store.OFRavgDetected();
-//            LOGGER.error(String.format("The average of processed measurements: %f it's over the expected: %f",
-//                                            avg, avgConst));
-            System.out.println(String.format("The average of processed measurements: %f it's over the expected: %f",
-                                            avg, avgConst));
+            LOGGER.error(String.format("The average of processed measurements: %f it's over the expected: %f",
+                                            avg, store.getAvgConst()));
+            System.err.println(String.format("[MONITOR ERROR DETECTED] The average of processed measurements: %f it's over the expected: %f",
+                                            avg, store.getAvgConst()));
         }else{
             store.rightAvgDetected();
         }
     }
 
-    private void difMaxMinProcess(Double measurement) {
+    private void difMaxMinProcess() {
 
-        Double max = Collections.max(measurementsProcessed);
-        Double min = Collections.min(measurementsProcessed);
+        Double max = Collections.max(store.getMeasurementsProcessed());
+        Double min = Collections.min(store.getMeasurementsProcessed());
 
         Double actualDif = max - min;
 
-        if(actualDif > difMaxMinConst) {
+        if(actualDif > store.getDifMaxMinConst()) {
 
             store.OFRdifDetected();
-//            LOGGER.error(String.format("The difference between max and min of processed measurements: %f " +
-//                                             "it's over the expected: %f", actualDif, difMaxMinConst));
-            System.out.println(String.format("The difference between max and min of processed measurements: %f " +
-                                             "it's over the expected: %f", actualDif, difMaxMinConst));
+            LOGGER.error(String.format("The difference between max and min of processed measurements: %f " +
+                                             "it's over the expected: %f", actualDif, store.getDifMaxMinConst()));
+            System.err.println(String.format("[MONITOR ERROR DETECTED] The difference between max and min of processed measurements: %f " +
+                                             "it's over the expected: %f", actualDif, store.getDifMaxMinConst()));
         }
     }
 
@@ -95,5 +85,3 @@ public class Monitor implements Runnable {
 
 
 }
-
-//System.out.println(String.format("Measurement with value: %02d, from sensor: %s, has been processed"));

@@ -15,7 +15,7 @@ public class MonitorTest {
     public void OutOfRange() {
 
         MeasurementStore store = new MeasurementStore();
-        Thread monitorThread = new Thread(new Monitor(store, 50.0, 20.0));
+        Thread monitorThread = new Thread(new Monitor(store));
 
         List<Double> testList = new ArrayList<>();
 
@@ -42,4 +42,6 @@ public class MonitorTest {
         assertTrue(store.getAvgOFR());
         assertTrue(store.getDifMaxMinOFR());
     }
+
+    //TODO... test of avg y difMaxMin Const changing
 }

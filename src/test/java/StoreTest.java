@@ -52,7 +52,7 @@ public class StoreTest {
             e.printStackTrace();
         }
 
-        store.turnOffSystem();
+        store.turnOffSensors();
 
         try {
             Thread.sleep(1000);
@@ -111,7 +111,7 @@ public class StoreTest {
             e.printStackTrace();
         }
 
-        store.turnOffSystem();
+        store.turnOffSensors();
 
         try {
             Thread.sleep(1000);
