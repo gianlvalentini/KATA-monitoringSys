@@ -16,7 +16,7 @@ public class MeasurementStore {
     private Boolean difMaxMinOFR = false; //it allows us to see if the monitor detect an out of range dif from max and min
     private Boolean avgOFR = false; //it allows us to see if the monitor detect an out of range avg
     private Double avgConst = 70.0;
-    private Double difMaxMinConst = 50.0;
+    private Double difMaxMinConst = 40.0;
 
     public synchronized void measurementListener(Double measurement, String sensorName) {
 
