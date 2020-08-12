@@ -49,6 +49,8 @@ public class Monitor implements Runnable {
         OptionalDouble optionalAvg = store.getMeasurementsProcessed().stream().mapToDouble(a -> a).average();
         Double avg = optionalAvg.isPresent() ? optionalAvg.getAsDouble() : 0.0;
 
+        LOGGER.debug(String.format("AVG: %f of %d processed measurement", avg, store.getMeasurementsProcessed().size()));
+
         if(avg > store.getAvgConst()) {
 
             store.OFRavgDetected();
@@ -67,6 +69,8 @@ public class Monitor implements Runnable {
         Double min = Collections.min(store.getMeasurementsProcessed());
 
         Double actualDif = max - min;
+
+        LOGGER.debug(String.format("MAX: %f - MIN: %f", max, min));
 
         if(actualDif > store.getDifMaxMinConst()) {
 
