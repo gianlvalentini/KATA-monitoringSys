@@ -1,156 +1,84 @@
 package system;
 
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import system.controller.MenuController;
 import system.monitoringSys.Monitor;
-import system.sensor.Sensor;
 import system.store.MeasurementStore;
+import system.utils.Menu;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+@SpringBootApplication
 public class SystemMain {
 
-    private static Boolean case1Running = false;
     private static MeasurementStore store = new MeasurementStore();
+    private static Menu menu = new Menu(store);
+    private static MenuController menuController = new MenuController();
 
     public static void main(String[] args)  {
 
         //LOG
         PropertyConfigurator.configure("src/main/resources/log4j.properties");
 
-        //INPUT
-        int selection;
-        Scanner input = new Scanner(System.in);
-
         //MONITOR
         Thread monitor = new Thread(new Monitor(store));
         monitor.start();
 
-        //MENU
-        while(true) {
+        if(args.length == 0){
 
-            System.out.println("\n/***************************************************/\n");
+            SpringApplication.run(SystemMain.class, args); //HTTP by default
 
-            System.out.println("Choose from these choices");
-            System.out.println("-------------------------\n");
-            System.out.println("1 - Run BaseCase (4 sensors with random measurements)");
-            System.out.println("2 - Stop Sensors (The monitor won't stop)");
-            System.out.println("3 - Configure Monitor DifMaxMin Const Value (If max-min is bigger than this Const " +
-                    "the system throws a console error) | Default 40.0");
-            System.out.println("4 - Configure Monitor avg Const Value (If average is bigger than this Const " +
-                    "the system throws a console error) | Default: 70.0");
-            System.out.println("5 - Stop System / Quit");
+        } else if (args.length > 1){
 
-            System.out.println("\nInsert numeric choice:");
+            System.err.println("There are to many args, only 'console' is available");
+            System.exit(-1);
 
-            try{
+        } else if (args[0].toLowerCase().equals("console")) {
 
-                selection = input.nextInt();
-                menuSelector(selection);
+            //INPUT
+            int selection;
+            Scanner input = new Scanner(System.in);
+
+            //MENU
+            while(true) {
+
+                menuView();
+
+                try{
+                    selection = input.nextInt();
+                    menu.menuSelector(selection);
+                }
+                catch (InputMismatchException e){
+
+                    System.err.println("The input doesn't match with the format required, only numbers are available");
+                    System.err.println(e.getMessage());
+                    System.exit(-1);
+                }
             }
-            catch (InputMismatchException e){
-
-                System.err.println("The input doesn't match with the format required, only numbers are available");
-                System.exit(1);
-            }
-        }
-    }
-
-    private static void menuSelector(int choice){ //TODO... extract menu and cases' methods in another class
-
-        Scanner input;
-        Double value;
-
-        switch (choice) {
-            case 0:
-                break;
-
-            case 1:
-                baseCase();
-                break;
-
-            case 2:
-                stopSensors();
-                break;
-
-            case 3:
-                input = new Scanner(System.in); //TODO... extract inputs logic to another method
-                System.out.println("Option Three has been selected");
-                System.out.println("Entre maxMin Const value | Between 0 - 100 : ");
-                value = input.nextDouble();
-                changeMonitorConst("maxMin", value);
-                break;
-
-            case 4:
-                input = new Scanner(System.in);
-                System.out.println("Option Four has been selected");
-                System.out.println("Entre avg Const value | Between 0 - 100: ");
-                value = input.nextDouble();
-                changeMonitorConst("avg", value);
-                break;
-
-            case 5:
-                System.out.println("Option Five has been selected");
-                System.out.println("Stoping System");
-                System.exit(0);
-                break;
-
-            default:
-                System.out.println("The choice you choose it's not available, please try again");
-        }
-    }
-
-    private static void baseCase(){
-
-        System.out.println("Option One has been selected");
-
-        if(!case1Running) {
-            System.out.println("activating sensors");
-
-            Thread sensorOne = new Thread(new Sensor("One", store));
-            Thread sensorTwo = new Thread(new Sensor("Two", store));
-            Thread sensorThree = new Thread(new Sensor("Three", store));
-            Thread sensorFour = new Thread(new Sensor("Four", store));
-
-            store.turnOnSensors();
-
-            sensorOne.start();
-            sensorTwo.start();
-            sensorThree.start();
-            sensorFour.start();
-        }else {
-            System.out.println("Sensors are already in activity");
-        }
-    }
-
-    private static void stopSensors() {
-
-        System.out.println("Option Two has been selected");
-        System.out.println("deactivating sensors");
-
-        store.turnOffSensors();
-        case1Running = false;
-    }
-
-    private static void changeMonitorConst(String constType, double newValue) {
-
-        if(newValue > 100 || newValue < 0){
-            System.err.println("The const number is out of the limits (0 - 100), please try again");
         } else {
 
-            switch (constType) {
-                case "maxMin":
-                    store.setDifMaxMinConst(newValue);
-                    break;
-
-                case "avg":
-                    store.setAvgConst(newValue);
-                    break;
-
-                default:
-                    break;
-            }
+            System.err.println("Wrong argument, only 'console' is available");
+            System.exit(-1);
         }
+    }
+
+    private static void menuView() {
+
+        System.out.println("\n/***************************************************/\n");
+
+        System.out.println("Choose from these choices");
+        System.out.println("-------------------------\n");
+        System.out.println("1 - Run BaseCase (4 sensors with random measurements)");
+        System.out.println("2 - Stop Sensors (The monitor won't stop)");
+        System.out.println("3 - Configure Monitor DifMaxMin Const Value (If max-min is bigger than this Const " +
+                "the system throws a console error) | Default 40.0");
+        System.out.println("4 - Configure Monitor avg Const Value (If average is bigger than this Const " +
+                "the system throws a console error) | Default: 70.0");
+        System.out.println("5 - Stop System / Quit");
+
+        System.out.println("\nInsert numeric choice:");
     }
 }
